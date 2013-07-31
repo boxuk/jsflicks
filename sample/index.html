@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JsFlicks - JavaScript Powered Searching for Flickr</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="../jsflicks.js"></script>
+    <style type="text/css">
+        body{color:#616161;font:normal normal 16px/24px Helvetica,Arial,Geneva,sans-serif;text-align:center;margin:0}
+        .container{width:900px;text-align:left;margin:0 auto}
+        .container div.querybox{display:block;border-bottom:2px solid #616161;margin:0 20px 40px;padding:20px}
+        .container .images{display:block;text-align:left}
+        .container .images img{border:1px solid #616161;margin:5px}
+        #getmore{display:none}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="querybox">
+        Query: <input type="text" name="query" value="funny cat" /> <button class="search">Search</button>
+    </div>
+    <div class="images"></div>
+</div>
+
+<button id="getmore">More</button>
+
+<script type="text/javascript">
+// Your Flickr API Key. Get one here: http://www.flickr.com/services/api/keys/apply/
+var apiKey = 'my-secret-api-key';
+
+// See the license codes here: http://www.flickr.com/services/api/flickr.photos.licenses.getInfo.html
+var licenseCode = '7';
+
+$(document).ready(function(){
+	if (apiKey == '' || apiKey == 'my-secret-api-key') {
+		alert('Please put your API key into the sample.');
+	} else {
+        $('.search').on('click',function(a){
+            a.preventDefault();
+            $('.container .images img').remove();
+            var val = $('input[name="query"]').val();
+            if (val != '') {
+                var flickr = new JsFlicks(apiKey);
+                flickr.nextPageListener($('#getmore'));
+                flickr.onError(function(){
+                    alert('There was a problem retrieving the photos.');
+                });
+                flickr.onSuccess(function(photos){
+                    for(var i=0;i<photos.length;i++) {
+                        var photo = photos[i];
+                        /**
+                            farm: 4
+                            id: "9025368792"
+                            image_medium: "http://farm4.static.flickr.com/3723/9025368792_4438cafe43_m.jpg"
+                            image_regular: "http://farm4.static.flickr.com/3723/9025368792_4438cafe43.jpg"
+                            image_small: "http://farm4.static.flickr.com/3723/9025368792_4438cafe43_s.jpg"
+                            image_thumb: "http://farm4.static.flickr.com/3723/9025368792_4438cafe43_t.jpg"
+                            isfamily: 0
+                            isfriend: 0
+                            ispublic: 1
+                            owner: "34184684@N08"
+                            secret: "4438cafe43"
+                            server: "3723"
+                            title: "Ziggy Cat - Box Play 5-19-13 03"
+                        */
+                        $('.container .images').append(
+                            '<a href="' + photo.image_regular + '" target="_blank"><img src="' + photo.image_thumb + '" /></a>'
+                        );
+                    }
+                });
+                flickr.search(val, licenseCode);
+            }
+        });
+	}
+});
+
+</script>
+
+</body>
+</html>
